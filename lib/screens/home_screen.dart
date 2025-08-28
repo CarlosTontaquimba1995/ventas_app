@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../models/product.dart';
+import '../services/cart_service.dart';
 import '../models/category.dart';
 import '../theme/app_theme.dart';
 import 'cart_screen.dart';
@@ -17,26 +20,38 @@ class HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   // Sample featured products
-  final List<Map<String, dynamic>> featuredProducts = [
-    {
-      'name': 'Premium Lager Beer',
-      'price': 24.99,
-      'unit': 'case (24 bottles)',
-      'image': 'assets/images/beer.png',
-      'discount': 10.0,
-    },
-    {
-      'name': 'Mineral Water',
-      'price': 12.99,
-      'unit': 'case (24 bottles)',
-      'image': 'assets/images/water.png',
-    },
-    {
-      'name': 'Cola Soda',
-      'price': 18.99,
-      'unit': 'case (24 cans)',
-      'image': 'assets/images/cola.png',
-    },
+  final List<Product> featuredProducts = [
+    Product(
+      id: '1',
+      name: 'Premium Lager Beer',
+      price: 24.99,
+      unit: 'case (24 bottles)',
+      description: 'Premium quality lager beer',
+      imageUrl: 'assets/images/beer.png',
+      stock: 100,
+      category: 'Beverages',
+      discount: 10.0,
+    ),
+    Product(
+      id: '2',
+      name: 'Mineral Water',
+      price: 12.99,
+      unit: 'case (24 bottles)',
+      description: 'Natural mineral water',
+      imageUrl: 'assets/images/water.png',
+      stock: 150,
+      category: 'Beverages',
+    ),
+    Product(
+      id: '3',
+      name: 'Cola Soda',
+      price: 18.99,
+      unit: 'case (24 cans)',
+      description: 'Classic cola flavor',
+      imageUrl: 'assets/images/cola.png',
+      stock: 120,
+      category: 'Beverages',
+    ),
   ];
 
   @override
@@ -320,7 +335,6 @@ class HomeScreenState extends State<HomeScreen> {
                                 topRight: Radius.circular(12),
                               ),
                               child: Container(
-                                height: 75,
                                 color: AppColors.background,
                                 child: Center(
                                   child: Icon(
@@ -331,7 +345,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            if (product['discount'] != null)
+                            if (product.discount != null)
                               Positioned(
                                 top: 8,
                                 left: 8,
@@ -345,7 +359,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    '${product['discount']}% OFF',
+                                    '${product.discount}% OFF',
                                     style: GoogleFonts.poppins(
                                       color: Colors.white,
                                       fontSize: 10,
@@ -364,33 +378,49 @@ class HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                              Text(
-                                product['name'],
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
-                                  height: 1.2,
+                                Text(
+                                  product.name,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '\$${product['price'].toStringAsFixed(2)} / ${product['unit']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
+                                const SizedBox(height: 2),
+                                Text(
+                                  '\$${product.price.toStringAsFixed(2)} / ${product.unit}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 0),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 32,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    // TODO: Add to cart
+                                const SizedBox(height: 0),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 32,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      final cartService = Provider.of<CartService>(
+                                        context,
+                                        listen: false,
+                                      );
+                                      cartService.addToCart(featuredProducts[index]);
+                                      
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('${featuredProducts[index].name} added to cart'),
+                                          action: SnackBarAction(
+                                            label: 'View Cart',
+                                            onPressed: () {
+                                              Navigator.pushNamed(context, '/cart');
+                                            },
+                                          ),
+                                        ),
+                                      );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero,
