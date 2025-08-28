@@ -49,6 +49,61 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    
+    if (index == 0) {
+      // Already on home screen
+      return;
+    } else if (index == 2) { // Cart tab
+      Navigator.pushNamed(context, '/cart');
+    } else if (index == 1) { // Search tab
+      // TODO: Implement search screen navigation
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Search feature coming soon!')),
+      );
+    } else if (index == 3) { // Account tab
+      // Show account options or navigate to profile screen
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text('My Profile'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    // TODO: Navigate to profile screen
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Settings'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    // TODO: Navigate to settings screen
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: const Text('Logout'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Navigate back to login screen and clear navigation stack
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login',
+                      (Route<dynamic> route) => false,
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
