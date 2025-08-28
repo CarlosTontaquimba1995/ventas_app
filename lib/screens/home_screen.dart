@@ -56,12 +56,12 @@ class HomeScreenState extends State<HomeScreen> {
     } else if (index == 2) { // Cart tab
       Navigator.pushNamed(context, '/cart');
     } else if (index == 1) { // Search tab
-      // TODO: Implement search screen navigation
+      // Show search feature coming soon
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Search feature coming soon!')),
       );
     } else if (index == 3) { // Account tab
-      // Show account options or navigate to profile screen
+      // Show account options
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -74,7 +74,7 @@ class HomeScreenState extends State<HomeScreen> {
                   title: const Text('My Profile'),
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to profile screen
+                    Navigator.pushNamed(context, '/profile');
                   },
                 ),
                 ListTile(
@@ -82,19 +82,41 @@ class HomeScreenState extends State<HomeScreen> {
                   title: const Text('Settings'),
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Navigate to settings screen
+                    Navigator.pushNamed(context, '/settings');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text('Logout'),
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text('Logout', style: TextStyle(color: Colors.red)),
                   onTap: () {
                     Navigator.pop(context);
-                    // Navigate back to login screen and clear navigation stack
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login',
-                      (Route<dynamic> route) => false,
+                    // Show confirmation dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Logout'),
+                          content: const Text('Are you sure you want to logout?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Close dialog
+                                // Navigate back to login screen and clear navigation stack
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/login',
+                                  (Route<dynamic> route) => false,
+                                );
+                              },
+                              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),
