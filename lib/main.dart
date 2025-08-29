@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
@@ -35,8 +36,15 @@ class WholesaleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Wholesale Pro',
+      title: 'Deposito Peguche',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('es', 'ES')],
+      locale: const Locale('es', 'ES'),
       theme: AppTheme.lightTheme.copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,

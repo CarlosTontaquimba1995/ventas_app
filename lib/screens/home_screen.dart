@@ -19,38 +19,38 @@ class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
-  // Sample featured products
+  // Productos destacados
   final List<Product> featuredProducts = [
     Product(
       id: '1',
-      name: 'Premium Lager Beer',
+      name: 'Cerveza Lager Premium',
       price: 24.99,
-      unit: 'case (24 bottles)',
-      description: 'Premium quality lager beer',
+      unit: 'caja (24 botellas)',
+      description: 'Cerveza lager de alta calidad',
       imageUrl: 'assets/images/beer.png',
       stock: 100,
-      category: 'Beverages',
+      category: 'Bebidas',
       discount: 10.0,
     ),
     Product(
       id: '2',
-      name: 'Mineral Water',
+      name: 'Agua Mineral',
       price: 12.99,
-      unit: 'case (24 bottles)',
-      description: 'Natural mineral water',
+      unit: 'caja (24 botellas)',
+      description: 'Agua mineral natural',
       imageUrl: 'assets/images/water.png',
       stock: 150,
-      category: 'Beverages',
+      category: 'Bebidas',
     ),
     Product(
       id: '3',
-      name: 'Cola Soda',
+      name: 'Gaseosa Cola',
       price: 18.99,
-      unit: 'case (24 cans)',
-      description: 'Classic cola flavor',
+      unit: 'caja (24 latas)',
+      description: 'Sabor clásico de cola',
       imageUrl: 'assets/images/cola.png',
       stock: 120,
-      category: 'Beverages',
+      category: 'Bebidas',
     ),
   ];
 
@@ -149,7 +149,7 @@ class HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          'Wholesale Pro',
+          'Deposito Peguche',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -183,12 +183,12 @@ class HomeScreenState extends State<HomeScreen> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search products...',
+                hintText: 'Buscar productos...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.filter_list),
                   onPressed: () {
-                    // TODO: Show filters
+                    // TODO: Mostrar filtros
                   },
                 ),
                 filled: true,
@@ -279,7 +279,7 @@ class HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Featured Deals',
+                  'Ofertas Destacadas',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -288,10 +288,10 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: View all featured
+                    // TODO: Ver todos los destacados
                   },
                   child: Text(
-                    'View All',
+                    'Ver Todo',
                     style: GoogleFonts.poppins(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w500,
@@ -412,9 +412,9 @@ class HomeScreenState extends State<HomeScreen> {
                                       
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('${featuredProducts[index].name} added to cart'),
+                                          content: Text('${featuredProducts[index].name} añadido al carrito'),
                                           action: SnackBarAction(
-                                            label: 'View Cart',
+                                            label: 'Ver Carrito',
                                             onPressed: () {
                                               Navigator.pushNamed(context, '/cart');
                                             },
@@ -431,7 +431,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    'Add to Cart',
+                                    'Añadir al Carrito',
                                     style: GoogleFonts.poppins(fontSize: 8, fontWeight: FontWeight.w500, height: 1.1),
                                   ),
                                 ),
@@ -453,7 +453,7 @@ class HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Best Sellers',
+                  'Categorías',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -465,7 +465,7 @@ class HomeScreenState extends State<HomeScreen> {
                     // TODO: View all best sellers
                   },
                   child: Text(
-                    'View All',
+                    'Ver Todo',
                     style: GoogleFonts.poppins(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w500,
@@ -482,22 +482,22 @@ class HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Inicio',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search_outlined),
             activeIcon: Icon(Icons.search),
-            label: 'Search',
+            label: 'Buscar',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart_outlined),
             activeIcon: Icon(Icons.shopping_cart),
-            label: 'Cart',
+            label: 'Carrito',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Account',
+            label: 'Cuenta',
           ),
         ],
         currentIndex: _selectedIndex,

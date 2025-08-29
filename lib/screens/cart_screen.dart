@@ -13,7 +13,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Cart'),
+        title: const Text('Mi Carrito'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -72,20 +72,21 @@ class CartScreen extends StatelessWidget {
         children: [
           Icon(
             Icons.shopping_cart_outlined,
-            size: 64,
+            size: 80,
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
           Text(
-            'Your cart is empty',
+            'Tu carrito está vacío',
             style: GoogleFonts.poppins(
               fontSize: 18,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Browse our products and add items to your cart',
+            'Agrega productos a tu carrito',
             style: GoogleFonts.poppins(
               color: AppColors.textSecondary,
             ),
@@ -93,20 +94,19 @@ class CartScreen extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context); // Go back to previous screen
+              Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32,
-                vertical: 12,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+            child: Text(
+              'Seguir Comprando',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
               ),
             ),
-            child: const Text('Continue Shopping'),
           ),
         ],
       ),
@@ -172,7 +172,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'Proceed to Checkout',
+                'Proceder al Pago',
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -187,24 +187,20 @@ class CartScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Clear Cart'),
-          content: const Text('Are you sure you want to remove all items from your cart?'),
-          actions: <Widget>[
+          title: const Text('Vaciar Carrito'),
+          content: const Text(
+              '¿Estás seguro de que deseas eliminar todos los artículos de tu carrito?'),
+          actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
                 context.read<CartService>().clearCart();
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Clear'),
+              child: const Text('Vaciar', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

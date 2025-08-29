@@ -39,6 +39,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Finalizar Compra'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -49,8 +52,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               const Text(
                 'Información de Envío',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 16),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
@@ -121,8 +125,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 24),
               const Text(
                 'Información de Pago',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 16),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cardNumberController,
@@ -221,7 +226,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            // Process payment and navigate to confirmation
+                            // Process payment and place order
                             Navigator.pushReplacementNamed(
                               context,
                               '/order-confirmation',
@@ -229,8 +234,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          textStyle: const TextStyle(fontSize: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                         child: const Text('Confirmar Pedido'),
                       ),
