@@ -454,7 +454,7 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
             
-            // Best Sellers Section
+            // Sección de Más Vendidos
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
