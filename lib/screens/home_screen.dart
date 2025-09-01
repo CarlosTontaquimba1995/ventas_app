@@ -73,7 +73,7 @@ class HomeScreenState extends State<HomeScreen> {
     } else if (index == 1) { // Search tab
       // Show search feature coming soon
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Search feature coming soon!')),
+        const SnackBar(content: Text('¡Función de búsqueda próximamente!')),
       );
     } else if (index == 3) { // Account tab
       // Show account options
@@ -86,7 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 ListTile(
                   leading: const Icon(Icons.person),
-                  title: const Text('My Profile'),
+                  title: const Text('Mi Perfil'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/profile');
@@ -94,7 +94,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: const Text('Settings'),
+                  title: const Text('Configuración'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/settings');
@@ -102,7 +102,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Logout', style: TextStyle(color: Colors.red)),
+                  title: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red)),
                   onTap: () {
                     Navigator.pop(context);
                     // Show confirmation dialog
@@ -110,24 +110,24 @@ class HomeScreenState extends State<HomeScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('Logout'),
-                          content: const Text('Are you sure you want to logout?'),
+                          title: const Text('Cerrar Sesión'),
+                          content: const Text('¿Está seguro de que desea cerrar sesión?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
+                              child: const Text('Cancelar'),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context); // Close dialog
-                                // Navigate back to login screen and clear navigation stack
+                                Navigator.pop(context); // Cerrar diálogo
+                                // Navegar a la pantalla de inicio de sesión y limpiar la pila de navegación
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,
                                   '/login',
                                   (Route<dynamic> route) => false,
                                 );
                               },
-                              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                              child: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red)),
                             ),
                           ],
                         );
@@ -190,6 +190,7 @@ class HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     // TODO: Mostrar filtros
                   },
+                  tooltip: 'Filtros',
                 ),
                 filled: true,
                 fillColor: Colors.white,
@@ -204,7 +205,7 @@ class HomeScreenState extends State<HomeScreen> {
             
             // Categories Section
             Text(
-              'Categories',
+              'Categorías',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,

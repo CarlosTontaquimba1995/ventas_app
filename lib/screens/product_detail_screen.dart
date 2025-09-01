@@ -89,7 +89,7 @@ class ProductDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          product.stock > 0 ? 'In Stock' : 'Out of Stock',
+                          product.stock > 0 ? 'En Stock' : 'Agotado',
                           style: GoogleFonts.poppins(
                             color: product.stock > 0
                                 ? Colors.green[800]
@@ -111,7 +111,7 @@ class ProductDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   // Description
                   Text(
-                    'Description',
+                    'Descripción',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -121,7 +121,7 @@ class ProductDetailScreen extends StatelessWidget {
                   Text(
                     product.description.isNotEmpty
                         ? product.description
-                        : 'No description available.',
+                        : 'No hay descripción disponible.',
                     style: GoogleFonts.poppins(
                       color: AppColors.textSecondary,
                       height: 1.5,
@@ -146,14 +146,14 @@ class ProductDetailScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bulk Discount Available',
+                                  'Descuento por Volumen',
                                   style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
-                                  'Buy ${product.minBulkQuantity}+ for \$${product.bulkPrice!.toStringAsFixed(2)} each',
+                                  'Compra ${product.minBulkQuantity}+ por \$${product.bulkPrice!.toStringAsFixed(2)} cada uno',
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     color: AppColors.textSecondary,
@@ -242,7 +242,7 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                   icon: const Icon(Icons.shopping_cart_outlined, size: 20),
                   label: Text(
-                    product.stock > 0 ? 'Add to Cart' : 'Out of Stock',
+                    product.stock > 0 ? 'Añadir al Carrito' : 'Agotado',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                     ),

@@ -134,7 +134,7 @@ class CartScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Subtotal (${cartService.itemCount} items):',
+                'Subtotal (${cartService.itemCount} artículos):',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: AppColors.textSecondary,

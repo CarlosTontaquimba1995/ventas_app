@@ -10,7 +10,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'My Profile',
+          'Mi Perfil',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
           ),
@@ -33,14 +33,14 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'John Doe',
+                    'Usuario',
                     style: GoogleFonts.poppins(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
-                    'john.doe@example.com',
+                    'usuario@ejemplo.com',
                     style: GoogleFonts.poppins(
                       color: Colors.grey[600],
                     ),
@@ -53,44 +53,44 @@ class ProfileScreen extends StatelessWidget {
             _buildProfileOption(
               context,
               icon: Icons.edit,
-              title: 'Edit Profile',
+              title: 'Editar Perfil',
               onTap: () {
                 // TODO: Implement edit profile
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Edit Profile coming soon!')),
+                  const SnackBar(content: Text('¡Editar perfil estará disponible pronto!')),
                 );
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.history,
-              title: 'Order History',
+              title: 'Historial de Pedidos',
               onTap: () {
                 // TODO: Implement order history
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Order History coming soon!')),
+                  const SnackBar(content: Text('¡El historial de pedidos estará disponible pronto!')),
                 );
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.location_on,
-              title: 'Saved Addresses',
+              title: 'Direcciones Guardadas',
               onTap: () {
                 // TODO: Implement saved addresses
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Saved Addresses coming soon!')),
+                  const SnackBar(content: Text('¡Las direcciones guardadas estarán disponibles pronto!')),
                 );
               },
             ),
             _buildProfileOption(
               context,
               icon: Icons.credit_card,
-              title: 'Payment Methods',
+              title: 'Métodos de Pago',
               onTap: () {
                 // TODO: Implement payment methods
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Payment Methods coming soon!')),
+                  const SnackBar(content: Text('¡Los métodos de pago estarán disponibles pronto!')),
                 );
               },
             ),

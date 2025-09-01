@@ -12,15 +12,15 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
   bool _darkMode = false;
-  String _selectedLanguage = 'English';
-  final List<String> _languages = ['English', 'Spanish', 'French'];
+  String _selectedLanguage = 'Español';
+  final List<String> _languages = ['Inglés', 'Español', 'Francés'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Settings',
+          'Configuración',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
           ),
@@ -33,7 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Preferences',
+              'Preferencias',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -51,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   SwitchListTile(
                     title: Text(
-                      'Enable Notifications',
+                      'Activar Notificaciones',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -63,12 +63,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _notificationsEnabled = value;
                       });
                     },
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                   ),
                   const Divider(height: 1),
                   SwitchListTile(
                     title: Text(
-                      'Dark Mode',
+                      'Modo Oscuro',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -80,16 +80,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _darkMode = value;
                         // TODO: Implement theme change
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Theme will be applied after restart')),
+                          const SnackBar(content: Text('El tema se aplicará después de reiniciar')),
                         );
                       });
                     },
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                   ),
                   const Divider(height: 1),
                   ListTile(
                     title: Text(
-                      'Language',
+                      'Idioma',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Support',
+              'Soporte',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -137,11 +137,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildSupportOption(
                     context,
                     icon: Icons.help_outline,
-                    title: 'Help Center',
+                    title: 'Centro de Ayuda',
                     onTap: () {
                       // TODO: Implement help center
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Help Center coming soon!')),
+                        const SnackBar(content: Text('¡Centro de ayuda disponible pronto!')),
                       );
                     },
                   ),
@@ -149,11 +149,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildSupportOption(
                     context,
                     icon: Icons.mail_outline,
-                    title: 'Contact Us',
+                    title: 'Contáctanos',
                     onTap: () {
                       // TODO: Implement contact us
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Contact Us coming soon!')),
+                        const SnackBar(content: Text('¡Contáctanos disponible pronto!')),
                       );
                     },
                   ),
@@ -161,16 +161,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildSupportOption(
                     context,
                     icon: Icons.info_outline,
-                    title: 'About App',
+                    title: 'Acerca de',
                     onTap: () {
                       showAboutDialog(
                         context: context,
-                        applicationName: 'Wholesale Pro',
+                        applicationName: 'Ventas Pro',
                         applicationVersion: '1.0.0',
                         children: [
-                          const Text('A wholesale ordering app for businesses'),
+                          const Text('Una aplicación de pedidos al por mayor para negocios'),
                           const SizedBox(height: 8),
-                          Text('© 2023 Wholesale Pro', style: GoogleFonts.poppins()),
+                          Text('© 2023 Ventas Pro', style: GoogleFonts.poppins()),
                         ],
                       );
                     },

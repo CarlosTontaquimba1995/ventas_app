@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Wholesale Pro',
+                    'Depósito Peguche',
                     style: GoogleFonts.poppins(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Business Portal',
+                    'Portal de Negocios',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       color: AppColors.textSecondary,
@@ -102,12 +102,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _usernameController,
                       decoration: const InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'Usuario',
                         prefixIcon: Icon(Icons.person_outline),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your username';
+                          return 'Por favor ingrese su usuario';
                         }
                         return null;
                       },
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Contraseña',
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -134,10 +134,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'Por favor ingrese su contraseña';
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return 'La contraseña debe tener al menos 6 caracteres';
                         }
                         return null;
                       },
@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           // TODO: Implement forgot password
                         },
-                        child: const Text('Forgot Password?'),
+                        child: const Text('¿Olvidó su contraseña?'),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -162,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Sign In',
+                        'Iniciar Sesión',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account?"),
+                        const Text("¿No tiene una cuenta?"),
                         TextButton(
                           onPressed: () {
                             Navigator.push(
@@ -178,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               MaterialPageRoute(builder: (context) => const SignUpScreen()),
                             );
                           },
-                          child: const Text('Sign Up'),
+                          child: const Text('Registrarse'),
                         ),
                       ],
                     ),

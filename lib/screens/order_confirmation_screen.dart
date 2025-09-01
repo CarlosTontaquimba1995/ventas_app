@@ -27,7 +27,7 @@ class OrderConfirmationScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Order Confirmation'),
+          title: const Text('Confirmación de Pedido'),
           automaticallyImplyLeading: false,
         ),
         body: SingleChildScrollView(
@@ -52,7 +52,7 @@ class OrderConfirmationScreen extends StatelessWidget {
               const SizedBox(height: 24),
               // Order Confirmed Text
               Text(
-                'Order Confirmed!',
+                '¡Pedido Confirmado!',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -60,7 +60,7 @@ class OrderConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Thank you for your order',
+                'Gracias por tu pedido',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -88,7 +88,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                   children: [
                     // Order Number
                     _buildDetailRow(
-                      'Order Number',
+                      'Número de Pedido',
                       orderNumber,
                       valueStyle: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
@@ -97,12 +97,12 @@ class OrderConfirmationScreen extends StatelessWidget {
                     const Divider(height: 32),
                     // Estimated Delivery
                     _buildDetailRow(
-                      'Estimated Delivery',
+                      'Fecha Estimada de Entrega',
                       DateFormat('EEEE, MMMM d, y').format(estimatedDelivery),
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
-                      'Total Amount',
+                      'Monto Total',
                       '\$${totalAmount.toStringAsFixed(2)}',
                       valueStyle: GoogleFonts.poppins(
                         fontSize: 18,
@@ -117,22 +117,22 @@ class OrderConfirmationScreen extends StatelessWidget {
               // Next Steps
               _buildStep(
                 icon: Icons.email_outlined,
-                title: 'Check your email',
+                title: 'Revisa tu correo',
                 description:
-                    'We\'ve sent order confirmation and details to your email.',
+                    'Hemos enviado la confirmación y detalles del pedido a tu correo electrónico.',
               ),
               const SizedBox(height: 16),
               _buildStep(
                 icon: Icons.local_shipping_outlined,
-                title: 'Track your order',
+                title: 'Rastrea tu pedido',
                 description:
-                    'You\'ll receive tracking information once your order ships.',
+                    'Recibirás información de seguimiento una vez que tu pedido sea enviado.',
               ),
               const SizedBox(height: 16),
               _buildStep(
                 icon: Icons.support_agent_outlined,
-                title: 'Need help?',
-                description: 'Contact our support team for any questions.',
+                title: '¿Necesitas ayuda?',
+                description: 'Contacta a nuestro equipo de soporte para cualquier pregunta.',
               ),
               const SizedBox(height: 40),
               // Action Buttons
@@ -152,7 +152,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Continue Shopping',
+                    'Seguir Comprando',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -172,7 +172,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                   // );
                 },
                 child: Text(
-                  'View Order Details',
+                  'Ver Detalles del Pedido',
                   style: GoogleFonts.poppins(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w500,

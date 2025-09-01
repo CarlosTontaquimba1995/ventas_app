@@ -58,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: const Text('Crear Cuenta'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -91,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Create Account',
+                      'Crear Cuenta',
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Fill in your details to get started',
+                      'Complete sus datos para comenzar',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -113,12 +113,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: 'Nombre Completo',
                     prefixIcon: Icon(Icons.person_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
+                      return 'Por favor ingrese su nombre completo';
                     }
                     return null;
                   },
@@ -129,15 +129,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Correo Electrónico',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Por favor ingrese su correo electrónico';
                     }
                     if (!value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return 'Por favor ingrese un correo electrónico válido';
                     }
                     return null;
                   },
@@ -148,15 +148,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
-                    labelText: 'Phone Number',
+                    labelText: 'Número de Teléfono',
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your phone number';
+                      return 'Por favor ingrese su número de teléfono';
                     }
                     if (value.length < 10) {
-                      return 'Please enter a valid phone number';
+                      return 'Por favor ingrese un número de teléfono válido';
                     }
                     return null;
                   },
@@ -167,7 +167,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Contraseña',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -184,10 +184,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
+                      return 'Por favor ingrese una contraseña';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'La contraseña debe tener al menos 6 caracteres';
                     }
                     return null;
                   },
@@ -198,7 +198,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
+                    labelText: 'Confirmar Contraseña',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -215,10 +215,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Por favor confirme su contraseña';
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Las contraseñas no coinciden';
                     }
                     return null;
                   },
@@ -234,7 +234,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Sign Up',
+                    'Registrarse',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -243,7 +243,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Already have an account?"),
+                    const Text("¿Ya tienes una cuenta?"),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -252,14 +252,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               builder: (context) => const LoginScreen()),
                         );
                       },
-                      child: const Text('Sign In'),
+                      child: const Text('Iniciar Sesión'),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
                 // Terms and Conditions
                 Text(
-                  'By signing up, you agree to our Terms of Service and Privacy Policy',
+                  'Al registrarte, aceptas nuestros Términos de Servicio y Política de Privacidad',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 12,
