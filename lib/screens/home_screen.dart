@@ -6,6 +6,7 @@ import '../services/cart_service.dart';
 import '../models/category.dart';
 import '../theme/app_theme.dart';
 import 'cart_screen.dart';
+import 'featured_products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -289,7 +290,14 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: Ver todos los destacados
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FeaturedProductsScreen(
+                          featuredProducts: featuredProducts,
+                        ),
+                      ),
+                    );
                   },
                   child: Text(
                     'Ver Todo',
@@ -453,33 +461,6 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
-            // Sección de Más Vendidos
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Categorías',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // TODO: View all best sellers
-                  },
-                  child: Text(
-                    'Ver Todo',
-                    style: GoogleFonts.poppins(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
