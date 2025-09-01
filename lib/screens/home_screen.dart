@@ -508,14 +508,6 @@ class HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Quick order action
-        },
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add_shopping_cart_rounded),
-      ),
     );
   }
 }
