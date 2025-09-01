@@ -303,15 +303,19 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              height: 168,
+              height: 220, // Increased height to accommodate content
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: featuredProducts.length,
                 itemBuilder: (context, index) {
                   final product = featuredProducts[index];
                   return Container(
-                    width: 135,
+                    width: 150,
                     margin: const EdgeInsets.only(right: 16),
+                    constraints: const BoxConstraints(
+                      minHeight: 200,
+                      maxHeight: 220, // Added max height
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -336,11 +340,12 @@ class HomeScreenState extends State<HomeScreen> {
                                 topRight: Radius.circular(12),
                               ),
                               child: Container(
+                                height: 90, // Reduced image height
                                 color: AppColors.background,
                                 child: Center(
                                   child: Icon(
                                     Icons.image,
-                                    size: 40,
+                                    size: 50,
                                     color: Colors.grey[400],
                                   ),
                                 ),
@@ -348,7 +353,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                             if (product.discount != null)
                               Positioned(
-                                top: 8,
+                                top: 8, 
                                 left: 8,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -374,10 +379,10 @@ class HomeScreenState extends State<HomeScreen> {
                         // Product Details
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.all(8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   product.name,
@@ -399,7 +404,7 @@ class HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 0),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 4),
                                 SizedBox(
                                   width: double.infinity,
                                   height: 32,
