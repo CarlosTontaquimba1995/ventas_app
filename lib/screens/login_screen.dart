@@ -47,6 +47,96 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showPasswordRecoveryDialog() {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Recuperar Contraseña'),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo Electrónico',
+                        prefixIcon: Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingrese su correo';
+                        }
+                        if (!value.contains('@') || !value.contains('.')) {
+                          return 'Ingrese un correo válido';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          if (formKey.currentState?.validate() ?? false) {
+                            setState(() => isLoading = true);
+                            
+                            // Simulate API call to send password reset email
+                            await Future.delayed(const Duration(seconds: 2));
+                            
+                            setState(() => isLoading = false);
+                            
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Se ha enviado un correo con instrucciones para restablecer su contraseña.'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Enviar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,9 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {
-                          // TODO: Implement forgot password
-                        },
+                        onPressed: _showPasswordRecoveryDialog,
                         child: const Text('¿Olvidó su contraseña?'),
                       ),
                     ),
