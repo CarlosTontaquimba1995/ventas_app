@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'signup_screen.dart';
+import 'reset_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -38,6 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Simulate API call
       Future.delayed(const Duration(seconds: 2), () {
+        // Check if widget is still mounted
+        if (!mounted) return;
+        
         // Dismiss the loading dialog
         Navigator.of(context).pop();
         
@@ -65,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.',
+                      'Ingrese su correo electrónico para restablecer su contraseña.',
                       style: TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 20),
@@ -92,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
@@ -102,17 +106,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (formKey.currentState?.validate() ?? false) {
                             setState(() => isLoading = true);
                             
-                            // Simulate API call to send password reset email
-                            await Future.delayed(const Duration(seconds: 2));
-                            
-                            setState(() => isLoading = false);
+                            // Simulate API call to verify email
+                            await Future.delayed(const Duration(seconds: 1));
                             
                             if (context.mounted) {
                               Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Se ha enviado un correo con instrucciones para restablecer su contraseña.'),
-                                  backgroundColor: Colors.green,
+                              // Navigate to reset password screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ResetPasswordScreen(
+                                    email: emailController.text.trim(),
+                                  ),
                                 ),
                               );
                             }
@@ -127,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text('Enviar'),
+                      : const Text('Continuar'),
                 ),
               ],
             );
@@ -154,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withAlpha((255 * 0.1).round()), // 0.1 opacity = ~10% alpha
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
