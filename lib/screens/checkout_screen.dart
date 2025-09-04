@@ -38,7 +38,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Finalizar Compra'),
+        title: const Text('Pago con Tarjeta'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
@@ -51,10 +51,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Información de Envío',
+                'Información de Pago',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
+              const Text(
+                'Complete los datos de su tarjeta para realizar el pago',
+                style: TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
@@ -123,12 +127,6 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Información de Pago',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const SizedBox(height: 16),
               TextFormField(
                 controller: _cardNumberController,
                 decoration: const InputDecoration(
@@ -225,14 +223,20 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Process payment and place order
-                            Navigator.pushReplacementNamed(
-                              context,
-                              '/order-confirmation',
-                            );
-                          }
-                        },
+                        if (_formKey.currentState!.validate()) {
+                          // Process card payment
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/order-confirmation',
+                            arguments: {
+                              'paymentMethod': 'Tarjeta',
+                              'last4': _cardNumberController.text.length > 4 
+                                  ? _cardNumberController.text.substring(_cardNumberController.text.length - 4)
+                                  : _cardNumberController.text,
+                            },
+                          );
+                        }
+                      },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,

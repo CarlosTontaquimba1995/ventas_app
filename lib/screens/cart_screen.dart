@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/cart_item_card.dart';
-import 'checkout_screen.dart';
+import 'payment_method_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -159,7 +159,7 @@ class CartScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CheckoutScreen(),
+                    builder: (context) => const PaymentMethodScreen(),
                   ),
                 );
               },
