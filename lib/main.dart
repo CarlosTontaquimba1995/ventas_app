@@ -11,27 +11,62 @@ import 'screens/order_confirmation_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/cart_service.dart';
+import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  runApp(
-    MultiProvider(
-      providers: [
-        // Cart Service Provider
-        ChangeNotifierProvider(
-          create: (_) => CartService()..loadCart(),
+  try {
+    // Initialize auth service
+    final authService = AuthService();
+    
+    // Check if user is already logged in
+    final isLoggedIn = await authService.isLoggedIn();
+    
+    runApp(
+      MultiProvider(
+        providers: [
+          // Cart Service Provider
+          ChangeNotifierProvider(
+            create: (_) => CartService()..loadCart(),
+          ),
+          // Auth Service Provider
+          Provider<AuthService>.value(value: authService),
+        ],
+        child: WholesaleApp(isLoggedIn: isLoggedIn),
+      ),
+    );
+  } catch (e) {
+    // If there's any error during initialization, show error screen
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Error initializing app: $e'),
+          ),
         ),
-        // Add other providers here as needed
-      ],
-      child: const WholesaleApp(),
-    ),
-  );
+      ),
+    );
+    rethrow;
+  }
 }
 
-class WholesaleApp extends StatelessWidget {
-  const WholesaleApp({super.key});
+class WholesaleApp extends StatefulWidget {
+  final bool isLoggedIn;
+  
+  const WholesaleApp({super.key, required this.isLoggedIn});
+
+  @override
+  State<WholesaleApp> createState() => _WholesaleAppState();
+}
+
+class _WholesaleAppState extends State<WholesaleApp> {
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('App started. User is ${widget.isLoggedIn ? 'logged in' : 'not logged in'}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +96,7 @@ class WholesaleApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginScreen(),
+      home: widget.isLoggedIn ? const HomeScreen() : const LoginScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),

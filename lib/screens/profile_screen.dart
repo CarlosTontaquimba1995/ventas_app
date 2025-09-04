@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    await authService.logout();
+    
+    if (!context.mounted) return;
+    
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +108,32 @@ class ProfileScreen extends StatelessWidget {
                   const SnackBar(content: Text('¡Los métodos de pago estarán disponibles pronto!')),
                 );
               },
+            ),
+            const SizedBox(height: 20),
+            // Logout Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: ElevatedButton.icon(
+                onPressed: () => _handleLogout(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[50],
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    side: BorderSide(color: Colors.red[100]!),
+                  ),
+                  elevation: 0,
+                ),
+                icon: const Icon(Icons.logout, size: 20),
+                label: Text(
+                  'Cerrar Sesión',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

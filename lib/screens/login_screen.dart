@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
 import 'reset_password_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +24,48 @@ class LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   final AuthService _authService = AuthService();
 
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString('last_login_email') ?? '';
+      final savedPassword = prefs.getString('last_login_password') ?? '';
+      
+      if (mounted) {
+        setState(() {
+          _emailController.text = savedEmail;
+          if (savedPassword.isNotEmpty) {
+            _passwordController.text = savedPassword;
+          }
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading saved credentials: $e');
+      }
+    }
+  }
+
+  Future<void> _checkAuthStatus() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final isLoggedIn = await authService.isLoggedIn();
+    
+    if (isLoggedIn && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
+
   void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -49,6 +94,13 @@ class LoginScreenState extends State<LoginScreen> {
       });
 
       try {
+        // Save the credentials for auto-fill next time
+        final prefs = await SharedPreferences.getInstance();
+        await Future.wait([
+          prefs.setString('last_login_email', _emailController.text.trim()),
+          prefs.setString('last_login_password', _passwordController.text),
+        ]);
+        
         // Attempt to login
         final response = await _authService.login(
           _emailController.text.trim(),
@@ -59,7 +111,11 @@ class LoginScreenState extends State<LoginScreen> {
         
         if (response['success'] == true) {
           // If login is successful, navigate to home
-          Navigator.pushReplacementNamed(context, '/home');
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          }
         } else {
           // Show error message from response
           final errorMessage = response['message'] ?? 'Error de autenticación';
@@ -211,7 +267,7 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Portal de Negocios',
+                    'Portal de Ventas',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       color: AppColors.textSecondary,

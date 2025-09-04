@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -16,7 +18,73 @@ class AuthService {
   //static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
   
   // For testing with physical device, use your computer's IP address
-   static const String baseUrl = 'http://10.2.0.35:8000/api/v1';
+  static const String baseUrl = 'http://10.2.0.35:8000/api/v1';
+  static const String _tokenKey = 'auth_token';
+  static const String _userEmailKey = 'user_email';
+
+  // Get the stored token
+  Future<String?> getToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_tokenKey);
+    } catch (e) {
+      // Handle any potential errors when accessing SharedPreferences
+      debugPrint('Error getting auth token: $e');
+      return null;
+    }
+  }
+
+  // Get the stored user email
+  Future<String?> getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userEmailKey);
+  }
+
+  // Save the token and user email
+  Future<bool> _saveAuthData(String token, String email) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+      await prefs.setString(_userEmailKey, email);
+      return true;
+    } catch (e) {
+      debugPrint('Error saving auth data: $e');
+      return false;
+    }
+  }
+
+  // Clear the stored auth data
+  Future<bool> logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_userEmailKey);
+      return true;
+    } catch (e) {
+      debugPrint('Error during logout: $e');
+      return false;
+    }
+  }
+
+  // Check if user is logged in
+  Future<bool> isLoggedIn() async {
+    try {
+      final token = await getToken();
+      return token != null && token.isNotEmpty;
+    } catch (e) {
+      debugPrint('Error checking login status: $e');
+      return false;
+    }
+  }
+
+  // Get auth headers with token
+  Future<Map<String, String>> getAuthHeaders() async {
+    final token = await getToken();
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+  }
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
@@ -34,6 +102,13 @@ class AuthService {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       
       if (response.statusCode == 200) {
+        // Save the token and email on successful login
+        if (responseData['token'] != null) {
+          final saved = await _saveAuthData(responseData['token'], email);
+          if (!saved) {
+            debugPrint('Warning: Could not save auth data to persistent storage');
+          }
+        }
         return responseData;
       } else {
         // Return error response instead of throwing
