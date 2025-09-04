@@ -63,8 +63,10 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showErrorSnackBar(String message) {
+  void _showErrorSnackBar(String message, {bool isError = true, bool isWarning = false}) {
     if (!mounted) return;
+    
+    Color backgroundColor = isError ? Colors.red : (isWarning ? Colors.orange : Colors.green);
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -72,7 +74,7 @@ class LoginScreenState extends State<LoginScreen> {
           message.replaceAll('Exception: ', ''),
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.red,
+        backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -119,7 +121,11 @@ class LoginScreenState extends State<LoginScreen> {
         } else {
           // Show error message from response
           final errorMessage = response['message'] ?? 'Error de autenticación';
-          _showErrorSnackBar(errorMessage);
+          _showErrorSnackBar(
+            errorMessage,
+            isError: true,
+            isWarning: false,
+          );
 
           // Clear the password field for security
           _passwordController.clear();
@@ -128,6 +134,8 @@ class LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         _showErrorSnackBar(
           'Ocurrió un error inesperado. Por favor, intente de nuevo.',
+          isError: true,
+          isWarning: false,
         );
       } finally {
         if (mounted) {

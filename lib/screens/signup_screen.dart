@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
 import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -15,42 +16,114 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
+  final AuthService _authService = AuthService();
 
+  void _showErrorSnackBar(String message, {bool isError = true, bool isWarning = false}) {
+    if (!mounted) return;
+    
+    Color backgroundColor = isError ? Colors.red : (isWarning ? Colors.orange : Colors.green);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message.replaceAll('Exception: ', ''),
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  @override
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleSignUp() {
+  Future<void> _handleSignUp() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
-
-      // Simulate API call
-      Future.delayed(const Duration(seconds: 2), () {
-        // Dismiss the loading dialog
-        Navigator.of(context).pop();
-        
-        // Navigate to home screen on successful signup
-        Navigator.pushReplacementNamed(context, '/home');
+      setState(() {
+        _isLoading = true;
       });
+
+      try {
+        final response = await _authService.register(
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          address: _addressController.text.trim(),
+          password: _passwordController.text,
+          passwordConfirmation: _confirmPasswordController.text,
+        );
+
+        if (!mounted) return;
+
+        if (response['success'] == true) {
+          // Show success message
+          _showErrorSnackBar(
+            '¡Registro exitoso! Por favor inicia sesión.',
+            isError: false,
+            isWarning: false,
+          );
+          
+          // Navigate back to login
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          }
+        } else {
+          // Show error message from response
+          final errorMessage = response['message'] ?? 'Error en el registro';
+          _showErrorSnackBar(
+            errorMessage,
+            isError: true,
+            isWarning: false,
+          );
+          
+          // If there are field-specific errors, show them
+          if (response['errors'] != null) {
+            final errors = response['errors'] as Map<String, dynamic>;
+            final errorMessages = errors.entries
+                .map((e) => '${e.key}: ${e.value.join(', ')}')
+                .join('\n');
+            _showErrorSnackBar(
+              errorMessages,
+              isError: true,
+              isWarning: false,
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          _showErrorSnackBar(
+            'Error de conexión. Por favor, intente de nuevo.',
+            isError: true,
+            isWarning: false,
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -143,6 +216,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+                // Address Field
+                TextFormField(
+                  controller: _addressController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    labelText: 'Dirección',
+                    hintText: 'Ingrese su dirección completa',
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                    alignLabelWithHint: true,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingrese su dirección';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
                 // Phone Field
                 TextFormField(
                   controller: _phoneController,
@@ -225,17 +316,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 32),
                 // Sign Up Button
-                ElevatedButton(
-                  onPressed: _handleSignUp,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleSignUp,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Registrarse',
-                    style: TextStyle(fontSize: 16),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Registrarse',
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 24),

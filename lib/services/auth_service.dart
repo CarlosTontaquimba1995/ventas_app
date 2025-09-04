@@ -86,6 +86,68 @@ class AuthService {
     };
   }
 
+  Future<Map<String, dynamic>> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String address,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/register'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'name': name,
+          'email': email,
+          'phone': phone,
+          'address': address,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        }),
+      ).timeout(const Duration(seconds: 30));
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Save the token and email on successful registration
+        if (responseData['token'] != null) {
+          await _saveAuthData(responseData['token'], email);
+        }
+        return {
+          'success': true,
+          'message': 'Registration successful',
+          'data': responseData,
+        };
+      } else {
+        // Return error response
+        final errorMessage = responseData['message'] ?? 
+          (responseData['error'] ?? 'Registration failed');
+        
+        return {
+          'success': false,
+          'statusCode': response.statusCode,
+          'message': errorMessage,
+          'errors': responseData['errors'] ?? {},
+        };
+      }
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Connection timeout. Please try again.',
+      };
+    } catch (e) {
+      debugPrint('Registration error: $e');
+      return {
+        'success': false,
+        'message': 'An error occurred. Please try again.',
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
