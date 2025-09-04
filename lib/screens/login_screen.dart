@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
 import 'signup_screen.dart';
 import 'reset_password_screen.dart';
 
@@ -13,41 +14,72 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final AuthService _authService = AuthService();
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message.replaceAll('Exception: ', ''),
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+      setState(() {
+        _isLoading = true;
+      });
 
-      // Simulate API call
-      Future.delayed(const Duration(seconds: 2), () {
-        // Check if widget is still mounted
+      try {
+        // Attempt to login
+        final response = await _authService.login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+
         if (!mounted) return;
         
-        // Dismiss the loading dialog
-        Navigator.of(context).pop();
-        
-        // Navigate to home screen
-        Navigator.pushReplacementNamed(context, '/home');
-      });
+        if (response['success'] == true) {
+          // If login is successful, navigate to home
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          // Show error message from response
+          final errorMessage = response['message'] ?? 'Error de autenticación';
+          _showErrorSnackBar(errorMessage);
+
+          // Clear the password field for security
+          _passwordController.clear();
+        }
+      } catch (e) {
+        if (!mounted) return;
+        _showErrorSnackBar(
+          'Ocurrió un error inesperado. Por favor, intente de nuevo.',
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -195,14 +227,18 @@ class LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
-                      controller: _usernameController,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Usuario',
-                        prefixIcon: Icon(Icons.person_outline),
+                        labelText: 'Correo Electrónico',
+                        prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor ingrese su usuario';
+                          return 'Por favor ingrese su correo';
+                        }
+                        if (!value.contains('@') || !value.contains('.')) {
+                          return 'Ingrese un correo válido';
                         }
                         return null;
                       },
@@ -246,17 +282,31 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(fontSize: 16),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Iniciar Sesión',
+                                style: TextStyle(fontSize: 16),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 24),
