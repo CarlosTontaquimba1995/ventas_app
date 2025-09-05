@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../services/cart_service.dart';
+import '../services/auth_service.dart';
 import '../models/category.dart';
 import '../theme/app_theme.dart';
 import 'cart_screen.dart';
@@ -119,14 +120,27 @@ class HomeScreenState extends State<HomeScreen> {
                               child: const Text('Cancelar'),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(context); // Cerrar diálogo
-                                // Navegar a la pantalla de inicio de sesión y limpiar la pila de navegación
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  '/login',
-                                  (Route<dynamic> route) => false,
-                                );
+                                
+                                // Clear the cart when logging out
+                                if (context.mounted) {
+                                  final cartService = Provider.of<CartService>(context, listen: false);
+                                  cartService.clearCart();
+                                  
+                                  // Perform logout
+                                  final authService = AuthService();
+                                  await authService.logout();
+                                  
+                                  // Navigate to login screen and clear navigation stack
+                                  if (context.mounted) {
+                                    Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      '/login',
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  }
+                                }
                               },
                               child: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red)),
                             ),
