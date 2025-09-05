@@ -40,12 +40,24 @@ class AuthService {
     return prefs.getString(_userEmailKey);
   }
 
-  // Save the token and user email
-  Future<bool> _saveAuthData(String token, String email) async {
+  // Save the token and user data
+  Future<bool> _saveAuthData(String token, String email, {Map<String, dynamic>? userData}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      
+      // Save the token and email
       await prefs.setString(_tokenKey, token);
       await prefs.setString(_userEmailKey, email);
+      
+      // Save additional user data if provided
+      if (userData != null) {
+        await prefs.setString('user_id', userData['id']?.toString() ?? '');
+        await prefs.setString('user_name', userData['name']?.toString() ?? '');
+        await prefs.setString('user_role', userData['role']?.toString() ?? 'customer');
+        await prefs.setString('user_phone', userData['phone']?.toString() ?? '');
+        await prefs.setString('user_address', userData['address']?.toString() ?? '');
+      }
+      
       return true;
     } catch (e) {
       debugPrint('Error saving auth data: $e');
@@ -53,12 +65,20 @@ class AuthService {
     }
   }
 
-  // Clear the stored auth data
+  // Clear all stored auth data
   Future<bool> logout() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      
+      // Remove all auth-related keys
       await prefs.remove(_tokenKey);
       await prefs.remove(_userEmailKey);
+      await prefs.remove('user_id');
+      await prefs.remove('user_name');
+      await prefs.remove('user_role');
+      await prefs.remove('user_phone');
+      await prefs.remove('user_address');
+      
       return true;
     } catch (e) {
       debugPrint('Error during logout: $e');
@@ -77,13 +97,19 @@ class AuthService {
     }
   }
 
-  // Get auth headers with token
+  // Get auth headers with token for API requests
   Future<Map<String, String>> getAuthHeaders() async {
     final token = await getToken();
-    return {
+    final headers = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
     };
+    
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    
+    return headers;
   }
 
   Future<Map<String, dynamic>> register({
@@ -99,6 +125,7 @@ class AuthService {
         Uri.parse('$baseUrl/auth/register'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
         },
         body: jsonEncode(<String, dynamic>{
           'name': name,
@@ -112,20 +139,27 @@ class AuthService {
 
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // Save the token and email on successful registration
-        if (responseData['token'] != null) {
-          await _saveAuthData(responseData['token'], email);
+      if ((response.statusCode == 201 || response.statusCode == 200) && responseData['success'] == true) {
+        // Save the token and user data on successful registration
+        if (responseData['data']?['access_token'] != null) {
+          final userData = responseData['data']?['user'];
+          await _saveAuthData(
+            responseData['data']['access_token'], 
+            email,
+            userData: userData is Map ? Map<String, dynamic>.from(userData) : null,
+          );
         }
+        
         return {
           'success': true,
-          'message': 'Registration successful',
-          'data': responseData,
+          'message': responseData['message'] ?? 'Registration successful',
+          'data': responseData['data'],
+          'user': responseData['data']?['user'] ?? {},
         };
       } else {
-        // Return error response
+        // Handle error response
         final errorMessage = responseData['message'] ?? 
-          (responseData['error'] ?? 'Registration failed');
+          (responseData['error']?.toString() ?? 'Registration failed');
         
         return {
           'success': false,
@@ -154,6 +188,7 @@ class AuthService {
         Uri.parse('$baseUrl/auth/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
         },
         body: jsonEncode(<String, String>{
           'email': email,
@@ -163,21 +198,40 @@ class AuthService {
 
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       
-      if (response.statusCode == 200) {
-        // Save the token and email on successful login
-        if (responseData['token'] != null) {
-          final saved = await _saveAuthData(responseData['token'], email);
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        // Save the token and user data on successful login
+        if (responseData['data']?['access_token'] != null) {
+          // Save the token, email, and user data
+          final userData = responseData['data']?['user'];
+          final saved = await _saveAuthData(
+            responseData['data']['access_token'], 
+            email,
+            userData: userData is Map ? Map<String, dynamic>.from(userData) : null,
+          );
           if (!saved) {
             debugPrint('Warning: Could not save auth data to persistent storage');
           }
+          
+          // Return the complete response data including user information
+          return {
+            'success': true,
+            'message': responseData['message'] ?? 'Inicio de sesión exitoso',
+            'data': responseData['data'],
+            'user': responseData['data']?['user'] ?? {},
+          };
         }
-        return responseData;
-      } else {
-        // Return error response instead of throwing
-        final errorMessage = responseData['message'] ?? 
-          (responseData['error'] ?? 'Error de autenticación');
         
-        // Return error response with status code and message
+        // If we get here, there was an issue with the response format
+        return {
+          'success': false,
+          'message': 'Formato de respuesta inesperado del servidor',
+          'statusCode': response.statusCode,
+        };
+      } else {
+        // Handle error response
+        final errorMessage = responseData['message'] ?? 
+          (responseData['error']?.toString() ?? 'Error de autenticación');
+        
         return {
           'success': false,
           'statusCode': response.statusCode,

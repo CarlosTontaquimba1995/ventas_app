@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
@@ -103,6 +104,11 @@ class LoginScreenState extends State<LoginScreen> {
           prefs.setString('last_login_password', _passwordController.text),
         ]);
         
+        // Show loading indicator
+        if (mounted) {
+          setState(() {});
+        }
+        
         // Attempt to login
         final response = await _authService.login(
           _emailController.text.trim(),
@@ -112,7 +118,16 @@ class LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         
         if (response['success'] == true) {
-          // If login is successful, navigate to home
+          // If login is successful, show success message and navigate to home
+          _showErrorSnackBar(
+            response['message'] ?? 'Inicio de sesión exitoso',
+            isError: false,
+            isWarning: false,
+          );
+          
+          // Add a small delay to show the success message
+          await Future.delayed(const Duration(milliseconds: 800));
+          
           if (mounted) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -120,7 +135,9 @@ class LoginScreenState extends State<LoginScreen> {
           }
         } else {
           // Show error message from response
-          final errorMessage = response['message'] ?? 'Error de autenticación';
+          final errorMessage = response['message'] ?? 
+            (response['error']?['message'] ?? 'Error de autenticación');
+            
           _showErrorSnackBar(
             errorMessage,
             isError: true,
@@ -130,6 +147,13 @@ class LoginScreenState extends State<LoginScreen> {
           // Clear the password field for security
           _passwordController.clear();
         }
+      } on TimeoutException {
+        if (!mounted) return;
+        _showErrorSnackBar(
+          'Tiempo de espera agotado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.',
+          isError: true,
+          isWarning: false,
+        );
       } catch (e) {
         if (!mounted) return;
         _showErrorSnackBar(
