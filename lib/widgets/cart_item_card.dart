@@ -71,78 +71,65 @@ class CartItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\$${item.product.price.toStringAsFixed(2)} / ${item.product.unit}',
+                        '\$${item.product.price.toStringAsFixed(2)}',
                         style: GoogleFonts.poppins(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // Quantity Selector
-                      Row(
+                      // Price and Quantity Row
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Decrease Quantity
-                          InkWell(
-                            onTap: () {
-                              if (item.quantity > 1) {
-                                onQuantityChanged(item.quantity - 1);
-                              } else {
-                                onRemove?.call();
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(4),
+                          const SizedBox(height: 8),
+                          // Quantity Selector
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Decrease Quantity
+                              InkWell(
+                                onTap: () {
+                                  if (item.quantity > 1) {
+                                    onQuantityChanged(item.quantity - 1);
+                                  } else {
+                                    onRemove?.call();
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Icon(Icons.remove, size: 16),
+                                ),
                               ),
-                              child: const Icon(Icons.remove, size: 16),
-                            ),
-                          ),
-                          // Quantity Display
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(
-                              '${item.quantity} ${item.quantity == 1 ? 'unidad' : 'unidades'}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w500,
+                              // Quantity Display
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Text(
+                                  '${item.quantity} ${item.quantity == 1 ? 'unidad' : 'unidades'}',
+                                ),
                               ),
-                            ),
-                          ),
-                          // Increase Quantity
-                          InkWell(
-                            onTap: () {
-                              onQuantityChanged(item.quantity + 1);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(4),
+                              // Increase Quantity
+                              InkWell(
+                                onTap: () {
+                                  onQuantityChanged(item.quantity + 1);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Icon(Icons.add, size: 16),
+                                ),
                               ),
-                              child: const Icon(Icons.add, size: 16),
-                            ),
+                            ],
                           ),
-                          const Spacer(),
-                          // Item Total
-                          Text(
-                            '\$${item.product.price.toStringAsFixed(2)}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          if (item.product.unit.isNotEmpty)
-                            Text(
-                              ' / ${item.product.unit}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
                         ],
                       ),
                     ],
