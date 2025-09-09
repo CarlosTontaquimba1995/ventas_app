@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import '../models/product.dart';
+import '../models/product_model.dart';
 import '../models/category_model.dart';
 import '../services/cart_service.dart';
 import '../services/auth_service.dart';

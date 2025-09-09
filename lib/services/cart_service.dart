@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart_item.dart';
-import '../models/product.dart';
+import '../models/product_model.dart';
 
 class CartService extends ChangeNotifier {
   static const String _cartKey = 'cart_items';
@@ -47,7 +47,7 @@ class CartService extends ChangeNotifier {
   // Add item to cart
   void addToCart(Product product, {int quantity = 1, String? notes}) {
     final existingItemIndex = _items.indexWhere(
-      (item) => item.product.id == product.id,
+      (item) => item.product.id.toString() == product.id.toString(),
     );
 
     if (existingItemIndex >= 0) {
@@ -69,15 +69,15 @@ class CartService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Remove item from cart
-  void removeFromCart(String productId) {
+  // Remove item from cart by product ID
+  void removeFromCart(int productId) {
     _items.removeWhere((item) => item.product.id == productId);
     _saveCart();
     notifyListeners();
   }
 
-  // Update item quantity
-  void updateQuantity(String productId, int newQuantity) {
+  // Update item quantity by product ID
+  void updateQuantity(int productId, int newQuantity) {
     if (newQuantity <= 0) {
       removeFromCart(productId);
       return;
@@ -92,7 +92,7 @@ class CartService extends ChangeNotifier {
   }
 
   // Update item notes
-  void updateNotes(String productId, String notes) {
+  void updateNotes(int productId, String notes) {
     final index = _items.indexWhere((item) => item.product.id == productId);
     if (index >= 0) {
       _items[index] = _items[index].copyWith(notes: notes);
@@ -108,18 +108,21 @@ class CartService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Check if product is in cart
-  bool isInCart(String productId) {
+  // Check if product is in cart by product ID
+  bool isInCart(int productId) {
     return _items.any((item) => item.product.id == productId);
   }
 
-  // Get quantity of a product in cart
-  int getProductQuantity(String productId) {
-    final item = _items.firstWhere(
-      (item) => item.product.id == productId,
-      orElse: () => throw Exception('Product not found in cart'),
-    );
-    return item.quantity;
+  // Get quantity of a product in cart by product ID
+  int getProductQuantity(int productId) {
+    try {
+      final item = _items.firstWhere(
+        (item) => item.product.id == productId,
+      );
+      return item.quantity;
+    } catch (e) {
+      return 0;
+    }
   }
 }
 

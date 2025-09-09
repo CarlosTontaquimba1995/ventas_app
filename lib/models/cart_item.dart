@@ -1,4 +1,4 @@
-import 'package:ventas_app/models/product.dart';
+import 'package:ventas_app/models/product_model.dart';
 
 class CartItem {
   final Product product;
@@ -32,7 +32,37 @@ class CartItem {
   // Convert CartItem to JSON
   Map<String, dynamic> toJson() {
     return {
-      'product': product.toJson(),
+      'product': {
+        'id': product.id,
+        'name': product.name,
+        'description': product.description,
+        'price': product.price,
+        'compare_price': product.comparePrice,
+        'stock': product.stock,
+        'sku': product.sku,
+        'barcode': product.barcode,
+        'is_active': product.isActive,
+        'is_featured': product.isFeatured,
+        'has_variants': product.hasVariants,
+        'image': product.image,
+        'specifications': product.specifications,
+        'category_id': product.categoryId,
+        'created_at': product.createdAt.toIso8601String(),
+        'updated_at': product.updatedAt.toIso8601String(),
+        'deleted_at': product.deletedAt?.toIso8601String(),
+        'final_price': product.finalPrice,
+        'in_stock': product.inStock,
+        'category': {
+          'id': product.category.id,
+          'name': product.category.name,
+          'slug': product.category.slug,
+          'description': product.category.description,
+          'image': product.category.image,
+          'is_active': product.category.isActive,
+          'created_at': product.category.createdAt.toIso8601String(),
+          'updated_at': product.category.updatedAt.toIso8601String(),
+        },
+      },
       'quantity': quantity,
       'notes': notes,
       'selected_options': selectedOptions,

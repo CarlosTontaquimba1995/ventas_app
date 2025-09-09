@@ -5,9 +5,9 @@ import '../theme/app_theme.dart';
 
 class CartItemCard extends StatelessWidget {
   final CartItem item;
-  final Function()? onRemove;
-  final Function(int) onQuantityChanged;
-  final Function(String) onNotesChanged;
+  final VoidCallback? onRemove;
+  final ValueChanged<int> onQuantityChanged;
+  final ValueChanged<String> onNotesChanged;
 
   const CartItemCard({
     super.key,
@@ -41,7 +41,18 @@ class CartItemCard extends StatelessWidget {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                  child: item.product.image != null && item.product.image!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            item.product.image!,
+                            fit: BoxFit.cover,
+                            width: 80,
+                            height: 80,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 40, color: Colors.grey),
+                          ),
+                        )
+                      : const Icon(Icons.image, size: 40, color: Colors.grey),
                 ),
                 const SizedBox(width: 12),
                 // Product Details
@@ -92,10 +103,11 @@ class CartItemCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              item.quantity.toString(),
+                              '${item.quantity} ${item.quantity == 1 ? 'unidad' : 'unidades'}',
                               style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[700],
                                 fontWeight: FontWeight.w500,
-                                fontSize: 16,
                               ),
                             ),
                           ),
@@ -116,12 +128,21 @@ class CartItemCard extends StatelessWidget {
                           const Spacer(),
                           // Item Total
                           Text(
-                            '\$${(item.totalPrice).toStringAsFixed(2)}',
+                            '\$${item.product.price.toStringAsFixed(2)}',
                             style: GoogleFonts.poppins(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
+                          if (item.product.unit.isNotEmpty)
+                            Text(
+                              ' / ${item.product.unit}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
                         ],
                       ),
                     ],

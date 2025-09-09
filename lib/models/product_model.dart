@@ -24,6 +24,17 @@ class Product {
   final double finalPrice;
   final bool inStock;
   final Category category;
+  int quantity;
+  
+  // Additional properties for compatibility
+  String get unit => ''; // Default empty string for unit
+  double? get discount => comparePrice != null && comparePrice! > 0 
+      ? ((comparePrice! - price) / comparePrice! * 100).roundToDouble() 
+      : null;
+  
+  // Bulk pricing properties with default values
+  double? get bulkPrice => null; // Not supported in this model
+  int? get minBulkQuantity => null; // Not supported in this model
 
   Product({
     required this.id,
@@ -47,36 +58,78 @@ class Product {
     required this.finalPrice,
     required this.inStock,
     required this.category,
+    this.quantity = 1,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'],
-      name: json['name'],
-      slug: json['slug'],
-      description: json['description'],
-      price: double.parse(json['price'].toString()),
-      comparePrice: json['compare_price'] != null ? double.parse(json['compare_price'].toString()) : null,
-      stock: json['stock'],
-      sku: json['sku'],
-      barcode: json['barcode'],
-      isActive: json['is_active'],
-      isFeatured: json['is_featured'],
-      hasVariants: json['has_variants'],
-      image: json['image'],
-      specifications: json['specifications'] != null 
-          ? (json['specifications'] is String 
-              ? jsonDecode(json['specifications']) 
-              : json['specifications'])
-          : null,
-      categoryId: json['category_id'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      deletedAt: json['deleted_at'] != null ? DateTime.parse(json['deleted_at']) : null,
-      finalPrice: double.parse(json['final_price'].toString()),
-      inStock: json['in_stock'],
-      category: Category.fromJson(json['category']),
-    );
+    try {
+      // Helper function to safely parse double
+      double parseDouble(dynamic value) {
+        if (value == null) return 0.0;
+        if (value is double) return value;
+        if (value is int) return value.toDouble();
+        return double.tryParse(value.toString()) ?? 0.0;
+      }
+
+      // Helper function to safely parse DateTime
+      DateTime? parseDateTime(dynamic value) {
+        if (value == null) return null;
+        if (value is DateTime) return value;
+        try {
+          return DateTime.parse(value.toString());
+        } catch (e) {
+          return null;
+        }
+      }
+
+      return Product(
+        id: json['id'] as int? ?? 0,
+        name: json['name'] as String? ?? 'Unnamed Product',
+        slug: json['slug'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        price: parseDouble(json['price']),
+        comparePrice: json['compare_price'] != null ? parseDouble(json['compare_price']) : null,
+        stock: (json['stock'] as num?)?.toInt() ?? 0,
+        sku: json['sku'] as String? ?? '',
+        barcode: json['barcode'] as String?,
+        isActive: json['is_active'] as bool? ?? false,
+        isFeatured: json['is_featured'] as bool? ?? false,
+        hasVariants: json['has_variants'] as bool? ?? false,
+        image: json['image'] as String?,
+        specifications: json['specifications'] != null 
+            ? (json['specifications'] is String 
+                ? jsonDecode(json['specifications'] as String) 
+                : json['specifications'] as Map<String, dynamic>?)
+            : null,
+        categoryId: (json['category_id'] as num?)?.toInt() ?? 0,
+        createdAt: parseDateTime(json['created_at']) ?? DateTime.now(),
+        updatedAt: parseDateTime(json['updated_at']) ?? DateTime.now(),
+        deletedAt: parseDateTime(json['deleted_at']),
+        finalPrice: parseDouble(json['final_price'] ?? json['price']),
+        inStock: json['in_stock'] is bool 
+            ? json['in_stock'] as bool 
+            : ((json['stock'] as num?)?.toInt() ?? 0) > 0,
+        quantity: 1,
+        category: json['category'] != null 
+            ? Category.fromJson(json['category'] as Map<String, dynamic>) 
+            : Category(
+                id: 0, 
+                name: 'Uncategorized', 
+                slug: 'uncategorized', 
+                description: '',
+                isActive: true,
+                order: 0,
+                hasChildren: false,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+      );
+    } catch (e, stackTrace) {
+      print('Error parsing Product JSON: $e');
+      print('JSON: $json');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 }
 

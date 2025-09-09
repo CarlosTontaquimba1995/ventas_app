@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../services/category_service.dart';
+import '../services/cart_service.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final Category category;
@@ -134,16 +136,59 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.category.name,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
+    return Consumer<CartService>(
+      builder: (context, cart, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              widget.category.name,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            actions: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart_outlined),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                  ),
+                  if (cart.itemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${cart.itemCount > 9 ? '9+' : cart.itemCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
-        ),
-      ),
-      body: _buildBody(),
+          body: _buildBody(),
+        );
+      },
     );
   }
 
@@ -228,7 +273,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
 
   // Helper method to convert API product to app's Product model
   List<Product> _mapApiProductsToAppProducts(List<dynamic> apiProducts) {
-      print("apiProducts: $apiProducts");
+    print("apiProducts: $apiProducts");
 
     return apiProducts.map((product) {
       // Safely get product data with null checks
@@ -315,6 +360,8 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     // Format price
     final formattedPrice = price.toStringAsFixed(2);
     final formattedComparePrice = comparePrice?.toStringAsFixed(2);
+    final cartService = Provider.of<CartService>(context, listen: false);
+    int quantity = 1; // Default quantity
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -391,19 +438,21 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
+                    // Price and Stock Status Row
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Price
                         Text(
                           '\$$formattedPrice',
                           style: GoogleFonts.poppins(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
                           ),
                         ),
                         if (comparePrice != null && comparePrice > price)
                           Container(
+                            margin: const EdgeInsets.only(left: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.red[50],
@@ -417,22 +466,132 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                               ),
                             ),
                           ),
+                        const Spacer(),
+                        // Stock Status
+                        Row(
+                          children: [
+                            Icon(
+                              product.stock > 0 ? Icons.check_circle : Icons.remove_circle,
+                              color: product.stock > 0 ? Colors.green : Colors.red,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              product.stock > 0 ? 'En stock (${product.stock})' : 'Agotado',
+                              style: TextStyle(
+                                color: product.stock > 0 ? Colors.green : Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
+                    // Quantity and Add to Cart Row
                     Row(
                       children: [
-                        Icon(
-                          product.stock > 0 ? Icons.check_circle : Icons.remove_circle,
-                          color: product.stock > 0 ? Colors.green : Colors.red,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          product.stock > 0 ? 'En stock (${product.stock})' : 'Agotado',
-                          style: TextStyle(
-                            color: product.stock > 0 ? Colors.green : Colors.red,
-                            fontSize: 14,
+                        // Quantity Controls
+                        if (product.stock > 0) ...[
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                // Decrease Button
+                                SizedBox(
+                                  width: 36,
+                                  height: 36,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.remove, size: 16),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: quantity > 1
+                                        ? () => setState(() => quantity--)
+                                        : null,
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.grey[100],
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.horizontal(
+                                          left: Radius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Quantity Display
+                                Container(
+                                  width: 40,
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '$quantity',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                // Increase Button
+                                SizedBox(
+                                  width: 36,
+                                  height: 36,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.add, size: 16),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: quantity < product.stock
+                                        ? () => setState(() => quantity++)
+                                        : null,
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.grey[100],
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.horizontal(
+                                          right: Radius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        const Spacer(),
+                        // Add to Cart Button
+                        IconButton(
+                          onPressed: product.stock > 0
+                              ? () {
+                                  cartService.addToCart(product, quantity: quantity);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${product.name} (x$quantity) añadido al carrito',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      backgroundColor: Theme.of(context).primaryColor,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      margin: const EdgeInsets.all(16),
+                                    ),
+                                  );
+                                  setState(() {
+                                    quantity = 1; // Reset quantity
+                                  });
+                                }
+                              : null,
+                          icon: const Icon(Icons.shopping_cart_outlined, size: 22),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.all(12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/product.dart';
+import '../models/product_model.dart';
 import '../theme/app_theme.dart';
 
 class ProductListingScreen extends StatelessWidget {
@@ -45,6 +45,38 @@ class ProductListingScreen extends StatelessWidget {
   }
 
   Widget _buildProductCard(Product product) {
+    return _ProductCard(product: product);
+  }
+}
+
+class _ProductCard extends StatefulWidget {
+  final Product product;
+
+  const _ProductCard({required this.product});
+
+  @override
+  _ProductCardState createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<_ProductCard> {
+  int _quantity = 1;
+
+  void _incrementQuantity() {
+    setState(() {
+      _quantity++;
+    });
+  }
+
+  void _decrementQuantity() {
+    if (_quantity > 1) {
+      setState(() {
+        _quantity--;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -74,7 +106,7 @@ class ProductListingScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name,
+                  widget.product.name,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w500,
                     fontSize: 14,
@@ -84,21 +116,81 @@ class ProductListingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '\$${product.price.toStringAsFixed(2)} / ${product.unit}',
+                  '\$${widget.product.price.toStringAsFixed(2)} / ${widget.product.unit}',
                   style: GoogleFonts.poppins(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 8),
+                // Quantity Counter
+                Row(
+                  children: [
+                    // Decrease button
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.remove, size: 18),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                        onPressed: _decrementQuantity,
+                      ),
+                    ),
+                    // Quantity display
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        _quantity.toString(),
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    // Increase button
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.add, size: 18),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                        onPressed: _incrementQuantity,
+                      ),
+                    ),
+                    const Spacer(),
+                    // Total price
+                    Text(
+                      '\$${(widget.product.price * _quantity).toStringAsFixed(2)}',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Add to Cart button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: Add to cart
+                      // TODO: Add to cart with _quantity
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
