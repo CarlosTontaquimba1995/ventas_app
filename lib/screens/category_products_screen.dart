@@ -29,6 +29,17 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   int _currentPage = 1;
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  final Map<int, int> _productQuantities = {};
+  
+  int _getQuantity(int productId) => _productQuantities[productId] ?? 1;
+  
+  void _updateQuantity(int productId, int newQuantity) {
+    if (newQuantity >= 1) {
+      setState(() {
+        _productQuantities[productId] = newQuantity;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -361,7 +372,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     final formattedPrice = price.toStringAsFixed(2);
     final formattedComparePrice = comparePrice?.toStringAsFixed(2);
     final cartService = Provider.of<CartService>(context, listen: false);
-    int quantity = 1; // Default quantity
+    final int quantity = _getQuantity(product.id);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -508,7 +519,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                                     icon: const Icon(Icons.remove, size: 16),
                                     padding: EdgeInsets.zero,
                                     onPressed: quantity > 1
-                                        ? () => setState(() => quantity--)
+                                        ? () => _updateQuantity(product.id, quantity - 1)
                                         : null,
                                     style: IconButton.styleFrom(
                                       backgroundColor: Colors.grey[100],
@@ -541,7 +552,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                                     icon: const Icon(Icons.add, size: 16),
                                     padding: EdgeInsets.zero,
                                     onPressed: quantity < product.stock
-                                        ? () => setState(() => quantity++)
+                                        ? () => _updateQuantity(product.id, quantity + 1)
                                         : null,
                                     style: IconButton.styleFrom(
                                       backgroundColor: Colors.grey[100],
@@ -579,9 +590,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                                       margin: const EdgeInsets.all(16),
                                     ),
                                   );
-                                  setState(() {
-                                    quantity = 1; // Reset quantity
-                                  });
+                                  _updateQuantity(product.id, 1); // Reset quantity
                                 }
                               : null,
                           icon: const Icon(Icons.shopping_cart_outlined, size: 22),
