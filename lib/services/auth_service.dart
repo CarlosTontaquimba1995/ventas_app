@@ -18,9 +18,11 @@ class AuthService {
   //static const String baseUrl = 'http://10.0.2.2:8000/api/v1';
   
   // For testing with physical device, use your computer's IP address
-  static const String baseUrl = 'http://10.2.0.35:8000/api/v1';
+  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
   static const String _tokenKey = 'auth_token';
+  static const String _refreshTokenKey = 'refresh_token';
   static const String _userEmailKey = 'user_email';
+  static const String _tokenExpiryKey = 'token_expiry';
 
   // Get the stored token
   Future<String?> getToken() async {
@@ -40,27 +42,136 @@ class AuthService {
     return prefs.getString(_userEmailKey);
   }
 
-  // Save the token and user data
-  Future<bool> _saveAuthData(String token, String email, {Map<String, dynamic>? userData}) async {
+  // Get refresh token from storage
+  Future<String?> getRefreshToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
-      // Save the token and email
+      return prefs.getString(_refreshTokenKey);
+    } catch (e) {
+      debugPrint('Error getting refresh token: $e');
+      return null;
+    }
+  }
+
+  // Save tokens and user data
+  Future<bool> _saveAuthData(
+    String token,
+    String email, {
+    String? refreshToken,
+    Map<String, dynamic>? userData,
+    int expiresIn = 86400,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Save the tokens and email
       await prefs.setString(_tokenKey, token);
+      if (refreshToken != null) {
+        await prefs.setString(_refreshTokenKey, refreshToken);
+      }
       await prefs.setString(_userEmailKey, email);
       
-      // Save additional user data if provided
+      // Set token expiry time based on expires_in from API (default to 24 hours if not provided)
+      final expiryTime = DateTime.now().add(Duration(seconds: expiresIn));
+      await prefs.setString(_tokenExpiryKey, expiryTime.toIso8601String());
+
+      // Save user data if provided
       if (userData != null) {
         await prefs.setString('user_id', userData['id']?.toString() ?? '');
         await prefs.setString('user_name', userData['name']?.toString() ?? '');
         await prefs.setString('user_role', userData['role']?.toString() ?? 'customer');
         await prefs.setString('user_phone', userData['phone']?.toString() ?? '');
         await prefs.setString('user_address', userData['address']?.toString() ?? '');
+        
+        // Save additional user data
+        await prefs.setBool('user_is_active', userData['is_active'] == true);
+        await prefs.setString(
+          'user_created_at',
+          userData['created_at']?.toString() ?? '',
+        );
+        await prefs.setString(
+          'user_updated_at',
+          userData['updated_at']?.toString() ?? '',
+        );
       }
       
       return true;
     } catch (e) {
       debugPrint('Error saving auth data: $e');
+      return false;
+    }
+  }
+
+  // Check if token is expired
+  Future<bool> isTokenExpired() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final expiryTimeStr = prefs.getString(_tokenExpiryKey);
+      if (expiryTimeStr == null) return true;
+
+      final expiryTime = DateTime.parse(expiryTimeStr);
+      return DateTime.now().isAfter(expiryTime);
+    } catch (e) {
+      debugPrint('Error checking token expiry: $e');
+      return true; // If there's an error, assume token is expired
+    }
+  }
+
+  // Refresh access token using refresh token
+  Future<bool> refreshToken() async {
+    try {
+      final refreshToken = await getRefreshToken();
+      if (refreshToken == null) {
+        debugPrint('No refresh token available');
+        return false;
+      }
+
+      debugPrint('Refreshing token...');
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/auth/refresh'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({'refresh_token': refreshToken}),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      debugPrint('Token refresh response: $responseData');
+
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        final data = responseData['data'];
+        final newToken = data['access_token'];
+        final newRefreshToken = data['refresh_token'];
+        final expiresIn =
+            data['expires_in'] as int? ?? 86400; // Default to 24 hours
+
+        if (newToken != null) {
+          final userData = data['user'] as Map<String, dynamic>?;
+          final email = userData?['email'] ?? await getUserEmail() ?? '';
+
+          await _saveAuthData(
+            newToken,
+            email,
+            refreshToken: newRefreshToken,
+            userData: userData,
+            expiresIn: expiresIn,
+          );
+
+          debugPrint('Token refreshed successfully');
+          return true;
+        }
+        return false;
+      } else {
+        debugPrint(
+          'Token refresh failed: ${response.statusCode} - ${response.body}',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error refreshing token: $e');
       return false;
     }
   }
@@ -72,6 +183,8 @@ class AuthService {
       
       // Remove all auth-related keys
       await prefs.remove(_tokenKey);
+      await prefs.remove(_refreshTokenKey);
+      await prefs.remove(_tokenExpiryKey);
       await prefs.remove(_userEmailKey);
       await prefs.remove('user_id');
       await prefs.remove('user_name');
@@ -99,12 +212,23 @@ class AuthService {
 
   // Get auth headers with token for API requests
   Future<Map<String, String>> getAuthHeaders() async {
-    final token = await getToken();
     final headers = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Accept': 'application/json',
     };
     
+    // Check if token is expired and try to refresh it if needed
+    if (await isTokenExpired()) {
+      final refreshed = await refreshToken();
+      if (!refreshed) {
+        // If refresh fails, return headers without auth token
+        // The next API call will likely fail with 401 and the app can handle logout
+        return headers;
+      }
+    }
+
+    // Get the (possibly refreshed) token
+    final token = await getToken();
     if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
@@ -202,12 +326,16 @@ class AuthService {
         // Save the token and user data on successful login
         if (responseData['data']?['access_token'] != null) {
           // Save the token, email, and user data
-          final userData = responseData['data']?['user'];
+          final data = responseData['data'] as Map<String, dynamic>;
+          final userData = data['user'] as Map<String, dynamic>?;
           final saved = await _saveAuthData(
-            responseData['data']['access_token'], 
-            email,
-            userData: userData is Map ? Map<String, dynamic>.from(userData) : null,
+            data['access_token'] as String,
+            userData?['email'] as String? ?? email,
+            refreshToken: data['refresh_token'] as String?,
+            userData: userData,
+            expiresIn: (data['expires_in'] as int?) ?? 86400,
           );
+          
           if (!saved) {
             debugPrint('Warning: Could not save auth data to persistent storage');
           }

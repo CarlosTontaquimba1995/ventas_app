@@ -8,6 +8,7 @@ import '../services/cart_service.dart';
 import '../services/auth_service.dart';
 import '../services/category_service.dart';
 import '../theme/app_theme.dart';
+import 'category_products_screen.dart';
 import 'cart_screen.dart';
 import 'featured_products_screen.dart';
 
@@ -167,7 +168,16 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _showSubcategories(Category category) {
-    if (category.children == null || category.children!.isEmpty) return;
+    if (category.children == null || category.children!.isEmpty) {
+      // If no children, navigate directly to products
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CategoryProductsScreen(category: category),
+        ),
+      );
+      return;
+    }
 
     showModalBottomSheet(
       context: context,
@@ -228,7 +238,12 @@ class HomeScreenState extends State<HomeScreen> {
                     trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Navigate to subcategory products
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryProductsScreen(category: subcategory),
+                        ),
+                      );
                     },
                   );
                 },
