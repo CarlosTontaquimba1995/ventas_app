@@ -65,7 +65,9 @@ class Product {
       hasVariants: json['has_variants'],
       image: json['image'],
       specifications: json['specifications'] != null 
-          ? jsonDecode(json['specifications']) 
+          ? (json['specifications'] is String 
+              ? jsonDecode(json['specifications']) 
+              : json['specifications'])
           : null,
       categoryId: json['category_id'],
       createdAt: DateTime.parse(json['created_at']),

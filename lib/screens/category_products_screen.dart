@@ -338,20 +338,30 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
-                  image: product.image != null && product.image!.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(product.image!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
                 ),
-                child: product.image == null || product.image!.isEmpty
-                    ? const Icon(
-                        Icons.image_not_supported_outlined,
-                        size: 40,
-                        color: Colors.grey,
+                child: product.image != null && product.image!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          product.image!,
+                          fit: BoxFit.cover,
+                          width: 100,
+                          height: 100,
+                          errorBuilder: (context, error, stackTrace) => _buildNoImageAvailable(),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                        ),
                       )
-                    : null,
+                    : _buildNoImageAvailable(),
               ),
               const SizedBox(width: 12),
               // Product Details
@@ -427,22 +437,44 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                         ),
                       ],
                     ),
-                    if (product.specifications != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'Especificaciones: ${product.specifications}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
                   ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoImageAvailable() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.image_not_supported_outlined,
+            size: 30,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Imagen no disponible',
+            style: GoogleFonts.poppins(
+              fontSize: 10,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
