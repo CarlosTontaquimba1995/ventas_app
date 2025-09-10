@@ -14,19 +14,10 @@ class CategoryService {
     const maxRetries = 2;
 
     try {
-      print('Getting auth headers...');
       final headers = await _authService.getAuthHeaders();
       
       final url = Uri.parse('$_baseUrl/products/category/$categoryId')
           .replace(queryParameters: {'page': page.toString()});
-      
-      print('=== REQUEST DETAILS ===');
-      print('Full URL: $url');
-      print('Headers: $headers');
-      print('Method: GET');
-      print('Category ID: $categoryId');
-      print('Page: $page');
-      print('======================');
       final stopwatch = Stopwatch()..start();
       final response = await http
           .get(url, headers: headers)
@@ -40,42 +31,14 @@ class CategoryService {
           );
       stopwatch.stop();
 
-      print('Request completed in ${stopwatch.elapsedMilliseconds}ms');
-      print('=== RESPONSE DETAILS ===');
-      print('Status Code: ${response.statusCode}');
-      print('Response Headers: ${response.headers}');
-      print('Response Body:');
-      print(response.body);
-      print('========================');
-      
-      // Try to parse the response to see its structure
-      try {
-        final responseData = jsonDecode(response.body);
-        print('Parsed Response:');
-        print('Keys in response: ${responseData.keys.toList()}');
-        if (responseData.containsKey('data')) {
-          print('Data type: ${responseData['data'].runtimeType}');
-          if (responseData['data'] is List) {
-            print('Data length: ${responseData['data'].length}');
-            if (responseData['data'].isNotEmpty) {
-              print('First item in data: ${responseData['data'][0]}');
-            }
-          }
-        }
-      } catch (e) {
-        print('Error parsing response: $e');
-      }
-
       if (response.statusCode == 401) {
         if (retryCount >= maxRetries) {
-          print('Max retry attempts reached. Logging out...');
           await _authService.logout();
           throw const UnauthorizedException(
             'Your session has expired. Please log in again.',
           );
         }
 
-        print('Attempt ${retryCount + 1} of $maxRetries - Refreshing token...');
         final refreshed = await _authService.refreshToken();
         if (refreshed) {
           return getProductsByCategory(categoryId, page: page, retryCount: retryCount + 1);
@@ -85,15 +48,12 @@ class CategoryService {
       }
 
       if (response.statusCode == 200) {
-        print('Raw API Response: ${response.body}');
         final responseData = jsonDecode(response.body);
-        print('Parsed Response Data: $responseData');
         return ProductListResponse.fromJson(responseData);
       } else {
         throw Exception('Failed to load products for category $categoryId');
       }
     } catch (e) {
-      print('Error in getProductsByCategory: $e');
       rethrow;
     }
   }
@@ -102,11 +62,7 @@ class CategoryService {
     const maxRetries = 2;
 
     try {
-      print('Getting auth headers...');
       final headers = await _authService.getAuthHeaders();
-      print('Headers: ${headers.keys.join(', ')}');
-
-      print('Fetching categories from: $_baseUrl/categories');
       final stopwatch = Stopwatch()..start();
       final response = await http
           .get(Uri.parse('$_baseUrl/categories'), headers: headers)
@@ -120,27 +76,20 @@ class CategoryService {
           );
       stopwatch.stop();
 
-      print('Request completed in ${stopwatch.elapsedMilliseconds}ms');
-      print('Response status: ${response.statusCode}');
-
       // Handle unauthorized (401) - token might be invalid
       if (response.statusCode == 401) {
         if (retryCount >= maxRetries) {
-          print('Max retry attempts reached. Logging out...');
           await _authService.logout();
           throw const UnauthorizedException(
             'Your session has expired. Please log in again.',
           );
         }
 
-        print('Attempt ${retryCount + 1} of $maxRetries - Refreshing token...');
         final refreshed = await _authService.refreshToken();
 
         if (refreshed) {
-          print('Token refresh successful, retrying request...');
           return getCategories(retryCount: retryCount + 1);
         } else {
-          print('Token refresh failed - logging out');
           await _authService.logout();
           throw const UnauthorizedException(
             'Your session has expired. Please log in again.',
@@ -153,7 +102,6 @@ class CategoryService {
         try {
           responseData = json.decode(utf8.decode(response.bodyBytes));
         } catch (e) {
-          print('Error decoding response: $e');
           throw Exception('Error processing server response');
         }
 
@@ -163,41 +111,30 @@ class CategoryService {
             final categories = data
                 .map<Category>((json) => Category.fromJson(json))
                 .toList();
-            print('Successfully parsed ${categories.length} categories');
             return categories;
           } catch (parseError) {
-            print('Error parsing category data: $parseError');
-            print('Problematic data: ${responseData['data']}');
             throw Exception('Error processing category data');
           }
         } else {
           final errorMsg = responseData['message'] ?? 'Unknown server error';
-          print('API Error: $errorMsg');
           throw Exception(errorMsg);
         }
       } else {
         final errorMsg =
             'Server error: ${response.statusCode} ${response.reasonPhrase}';
-        print(errorMsg);
         throw Exception(errorMsg);
       }
-    } on TimeoutException catch (e) {
-      print('Request timed out: $e');
+    } on TimeoutException {
       throw TimeoutException(
         'Request timed out. Please check your internet connection.',
       );
-    } on FormatException catch (e) {
-      print('Format error: $e');
+    } on FormatException {
       rethrow;
     } on UnauthorizedException {
       rethrow; // Already handled, just rethrow
-    } on http.ClientException catch (e) {
-      print('Network error: $e');
+    } on http.ClientException {
       throw Exception('Network error. Please check your internet connection.');
-    } catch (e, stackTrace) {
-      print('Unexpected error in getCategories:');
-      print('Error: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       throw Exception('Failed to load categories. Please try again.');
     }
   }

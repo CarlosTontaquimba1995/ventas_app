@@ -12,9 +12,9 @@ class CategoryProductsScreen extends StatefulWidget {
   final Category category;
 
   const CategoryProductsScreen({
-    Key? key,
+    super.key,
     required this.category,
-  }) : super(key: key);
+  });
 
   @override
   State<CategoryProductsScreen> createState() => _CategoryProductsScreenState();
@@ -78,20 +78,6 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       );
 
       if (!mounted) return;
-
-      print('API Response:');
-      print('Products: ${response.products.length}');
-      if (response.products.isNotEmpty) {
-        final product = response.products.first;
-        print('First product:');
-        print('  ID: ${product.id}');
-        print('  Name: ${product.name}');
-        print('  Price: ${product.price}');
-        print('  Stock: ${product.stock}');
-        print('  Image: ${product.image}');
-        print('  Category: ${product.category.name}');
-      }
-
       setState(() {
         _products = response.products; // Use the already parsed products directly
         _hasMore = response.nextPageUrl != null;
@@ -284,8 +270,6 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
 
   // Helper method to convert API product to app's Product model
   List<Product> _mapApiProductsToAppProducts(List<dynamic> apiProducts) {
-    print("apiProducts: $apiProducts");
-
     return apiProducts.map((product) {
       // Safely get product data with null checks
       final productMap = product is Map<String, dynamic> ? product : {};
@@ -320,7 +304,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           try {
             specifications = json.decode(productMap['specifications']) as Map<String, dynamic>;
           } catch (e) {
-            print('Error parsing specifications: $e');
+            // If JSON parsing fails, use an empty map as fallback
+            debugPrint('Error parsing specifications JSON: $e');
+            specifications = {};
           }
         } else if (productMap['specifications'] is Map) {
           specifications = productMap['specifications'] as Map<String, dynamic>;

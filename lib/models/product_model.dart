@@ -124,10 +124,7 @@ class Product {
                 updatedAt: DateTime.now(),
               ),
       );
-    } catch (e, stackTrace) {
-      print('Error parsing Product JSON: $e');
-      print('JSON: $json');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }
